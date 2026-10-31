@@ -32,3 +32,4 @@ class TicketResponse(BaseModel):
     confidence: Optional[float]
     source: Optional[str]
     escalated: bool
+    sla: Optional[dict] = None

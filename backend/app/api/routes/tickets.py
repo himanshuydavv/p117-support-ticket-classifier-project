@@ -9,6 +9,7 @@ from backend.app.schemas import TicketCreate, TicketCorrection
 from backend.app.db.session import get_connection
 from backend.app.ai.hybrid_engine import classify_ticket
 from backend.app.services.sentiment import analyze_sentiment
+from backend.app.services.sla import get_sla
 
 
 router = APIRouter(
@@ -125,7 +126,14 @@ def get_tickets():
 
     connection.close()
 
-    return tickets
+    return [
+        {
+            **ticket,
+            "escalated": (ticket.get("priority") == "P1"),
+            "sla": get_sla(ticket.get("priority") or "P4")
+        }
+        for ticket in tickets
+    ]
 
 
 # ============================================================

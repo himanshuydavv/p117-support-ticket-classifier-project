@@ -38,11 +38,14 @@ def get_gemini_client():
             "Install it with: pip install google-genai"
         )
 
-    api_key = dotenv_values(PROJECT_ROOT / ".env").get("GEMINI_API_KEY")
+    api_key = (
+        os.getenv("GEMINI_API_KEY")
+        or dotenv_values(PROJECT_ROOT / ".env").get("GEMINI_API_KEY")
+    )
 
     if not api_key:
         raise ValueError(
-            "GEMINI_API_KEY is not configured in the .env file."
+            "GEMINI_API_KEY is not configured in environment variables or .env file."
         )
 
     return genai.Client(api_key=api_key)
