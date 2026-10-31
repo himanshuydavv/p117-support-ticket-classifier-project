@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SupportAI - Ticket Detail</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+
+
+<body class="bg-slate-50 text-slate-900">
+
+
+<!-- Sidebar -->
+<aside class="fixed left-0 top-0 h-screen w-64 bg-slate-900 text-white flex flex-col">
+
+    <div class="h-16 px-6 flex items-center">
+        <span class="text-xl font-bold">SupportAI</span>
+    </div>
+
+
+    <nav class="px-4 mt-4 space-y-2">
+
+        <a
+            href="dashboard.html"
+            class="block px-4 py-3 rounded-lg hover:bg-slate-800"
+        >
+            Dashboard
+        </a>
+
+
+        <a
+            href="tickets.html"
+            class="block px-4 py-3 rounded-lg bg-blue-600"
+        >
+            Tickets
+        </a>
+
+
+        <a
+            href="index.html"
+            class="block px-4 py-3 rounded-lg hover:bg-slate-800"
+        >
+            Bulk Upload
+        </a>
+
+
+        <a
+            href="analytics.html"
+            class="block px-4 py-3 rounded-lg hover:bg-slate-800"
+        >
+            Analytics
+        </a>
+
+
+        <a
+            href="index.html"
+            class="block px-4 py-3 rounded-lg hover:bg-slate-800"
+        >
+            Knowledge Base
+        </a>
+
+    </nav>
+
+</aside>
+
+
+
+<!-- Main Content -->
+<div class="ml-64">
+
+
+    <!-- Header -->
+    <header class="h-16 bg-white border-b flex items-center justify-between px-8">
+
+        <div>
+
+            <h1 class="text-xl font-semibold">
+                Ticket Details
+            </h1>
+
+            <p class="text-sm text-slate-500">
+                View AI classification and ticket information
+            </p>
+
+        </div>
+
+
+        <button
+            onclick="goBack()"
+            class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300"
+        >
+            ← Back to Tickets
+        </button>
+
+    </header>
+
+
+
+    <!-- Content -->
+    <main class="p-8">
+
+
+        <!-- Loading -->
+        <div
+            id="loading"
+            class="bg-white rounded-xl border p-10 text-center"
+        >
+            <p class="text-slate-500">
+                Loading ticket...
+            </p>
+        </div>
+
+
+
+        <!-- Error -->
+        <div
+            id="error"
+            class="hidden bg-white rounded-xl border p-10 text-center"
+        >
+
+            <p class="text-red-500 font-medium">
+                Unable to load ticket.
+            </p>
+
+        </div>
+
+
+
+        <!-- Ticket Content -->
+        <div
+            id="ticketContent"
+            class="hidden"
+        >
+
+
+            <!-- Ticket Header -->
+            <div class="bg-white rounded-xl border p-6 mb-6">
+
+                <div class="flex justify-between items-start">
+
+                    <div>
+
+                        <p
+                            id="ticketId"
+                            class="mono text-sm text-slate-500 mb-2"
+                        >
+                            #-
+                        </p>
+
+
+                        <h2
+                            id="ticketSubject"
+                            class="text-2xl font-bold"
+                        >
+                            -
+                        </h2>
+
+
+                        <p
+                            id="customerTier"
+                            class="text-sm text-slate-500 mt-2"
+                        >
+                            -
+                        </p>
+
+                    </div>
+
+
+                    <div
+                        id="priorityBadge"
+                        class="px-4 py-2 rounded-full text-sm font-semibold"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Main Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+
+                <!-- Ticket Message -->
+                <div class="lg:col-span-2">
+
+                    <div class="bg-white rounded-xl border p-6">
+
+                        <h3 class="font-semibold text-lg mb-4">
+                            Customer Message
+                        </h3>
+
+
+                        <div
+                            id="ticketBody"
+                            class="text-slate-700 leading-7 whitespace-pre-wrap"
+                        >
+                            -
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Suggested Reply -->
+                    <div class="bg-white rounded-xl border p-6 mt-6">
+
+                        <div class="flex justify-between items-center mb-4">
+
+                            <h3 class="font-semibold text-lg">
+                                AI Suggested Reply
+                            </h3>
+
+
+                            <button
+                                onclick="suggestReply()"
+                                id="replyButton"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                            >
+                                Suggest Reply
+                            </button>
+
+                        </div>
+
+
+                        <div
+                            id="replyBox"
+                            class="bg-slate-50 rounded-lg p-5 text-slate-700 whitespace-pre-wrap"
+                        >
+                            Click "Suggest Reply" to generate an AI response.
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- AI Classification -->
+                <div>
+
+                    <div class="bg-white rounded-xl border p-6">
+
+                        <h3 class="font-semibold text-lg mb-5">
+                            AI Classification
+                        </h3>
+
+
+                        <!-- Category -->
+                        <div class="mb-5">
+
+                            <p class="text-sm text-slate-500">
+                                Category
+                            </p>
+
+                            <p
+                                id="category"
+                                class="font-semibold mt-1"
+                            >
+                                -
+                            </p>
+
+                        </div>
+
+
+
+                        <!-- Priority -->
+                        <div class="mb-5">
+
+                            <p class="text-sm text-slate-500">
+                                Priority
+                            </p>
+
+                            <p
+                                id="priority"
+                                class="font-semibold mt-1"
+                            >
+                                -
+                            </p>
+
+                        </div>
+
+
+
+                        <!-- Sentiment -->
+                        <div class="mb-5">
+
+                            <p class="text-sm text-slate-500">
+                                Sentiment
+                            </p>
+
+                            <p
+                                id="sentiment"
+                                class="font-semibold mt-1"
+                            >
+                                -
+                            </p>
+
+                        </div>
+
+
+
+                        <!-- Confidence -->
+                        <div class="mb-5">
+
+                            <p class="text-sm text-slate-500">
+                                Confidence
+                            </p>
+
+                            <p
+                                id="confidence"
+                                class="font-semibold mt-1"
+                            >
+                                -
+                            </p>
+
+                        </div>
+
+
+
+                        <!-- Source -->
+                        <div class="mb-5">
+
+                            <p class="text-sm text-slate-500">
+                                Classification Source
+                            </p>
+
+                            <p
+                                id="source"
+                                class="font-semibold mt-1"
+                            >
+                                -
+                            </p>
+
+                        </div>
+
+
+
+                        <!-- Escalation -->
+                        <div>
+
+                            <p class="text-sm text-slate-500">
+                                Escalation
+                            </p>
+
+                            <p
+                                id="escalated"
+                                class="font-semibold mt-1"
+                            >
+                                -
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- SLA -->
+                    <div class="bg-white rounded-xl border p-6 mt-6">
+
+                        <h3 class="font-semibold text-lg mb-5">
+                            SLA
+                        </h3>
+
+
+                        <div class="mb-5">
+
+                            <p class="text-sm text-slate-500">
+                                Response Time
+                            </p>
+
+                            <p
+                                id="responseTime"
+                                class="font-semibold mt-1"
+                            >
+                                -
+                            </p>
+
+                        </div>
+
+
+                        <div>
+
+                            <p class="text-sm text-slate-500">
+                                Resolution Time
+                            </p>
+
+                            <p
+                                id="resolutionTime"
+                                class="font-semibold mt-1"
+                            >
+                                -
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Agent Correction -->
+            <section class="bg-white rounded-xl border p-6 mt-6">
+
+                <h3 class="font-semibold text-lg mb-4">
+                    Agent Correction
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+
+                    <div>
+                        <p class="text-sm text-slate-500">Current Category</p>
+                        <p id="currentCorrectionCategory" class="font-semibold mt-1">-</p>
+                    </div>
+
+                    <div>
+                        <p class="text-sm text-slate-500">Current Priority</p>
+                        <p id="currentCorrectionPriority" class="font-semibold mt-1">-</p>
+                    </div>
+
+                </div>
+
+                <form onsubmit="submitCorrection(event)">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        <label class="text-sm font-medium text-slate-700" for="correctionCategory">
+                            Corrected Category
+                            <select id="correctionCategory" class="mt-1 w-full border rounded-lg px-3 py-2 bg-white">
+                                <option value="">No change</option>
+                                <option value="billing">Billing</option>
+                                <option value="technical">Technical</option>
+                                <option value="account">Account</option>
+                                <option value="shipping">Shipping</option>
+                                <option value="general">General</option>
+                            </select>
+                        </label>
+
+                        <label class="text-sm font-medium text-slate-700" for="correctionPriority">
+                            Corrected Priority
+                            <select id="correctionPriority" class="mt-1 w-full border rounded-lg px-3 py-2 bg-white">
+                                <option value="">No change</option>
+                                <option value="P1">P1</option>
+                                <option value="P2">P2</option>
+                                <option value="P3">P3</option>
+                                <option value="P4">P4</option>
+                            </select>
+                        </label>
+
+                    </div>
+
+                    <button id="correctionButton" type="submit" class="mt-5 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Submit Correction
+                    </button>
+
+                    <p id="correctionStatus" class="hidden mt-4 text-sm" role="status" aria-live="polite"></p>
+
+                </form>
+
+            </section>
+
+
+            <!-- Similar Tickets -->
+            <section class="bg-white rounded-xl border p-6 mt-6">
+
+                <h3 class="font-semibold text-lg mb-4">
+                    Similar Tickets
+                </h3>
+
+                <p id="similarTicketsStatus" class="text-slate-500">
+                    Loading similar tickets...
+                </p>
+
+                <div id="similarTicketsList" class="hidden divide-y"></div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+
+<script>
+
+const API_URL = "http://127.0.0.1:8000";
+
+
+// Get ticket ID from URL
+const params = new URLSearchParams(window.location.search);
+
+const ticketId = params.get("id");
+
+let currentTicket = null;
+
+
+
+// Load ticket
+async function loadTicket() {
+
+    const loading = document.getElementById("loading");
+
+    const error = document.getElementById("error");
+
+    const content = document.getElementById("ticketContent");
+
+
+    if (!ticketId) {
+
+        loading.classList.add("hidden");
+        error.classList.remove("hidden");
+
+        return;
+
+    }
+
+
+    try {
+
+        const response = await fetch(`${API_URL}/tickets/`);
+
+
+        if (!response.ok) {
+
+            throw new Error("Failed to load tickets");
+
+        }
+
+
+        const tickets = await response.json();
+
+
+        const ticket = tickets.find(
+            item => String(item.id) === String(ticketId)
+        );
+
+
+        if (!ticket) {
+
+            throw new Error("Ticket not found");
+
+        }
+
+
+        currentTicket = ticket;
+
+        document.getElementById("currentCorrectionCategory").textContent =
+            ticket.category || "-";
+
+        document.getElementById("currentCorrectionPriority").textContent =
+            ticket.priority || "-";
+
+
+        // Basic information
+        document.getElementById("ticketId").textContent =
+            `#${ticket.id}`;
+
+
+        document.getElementById("ticketSubject").textContent =
+            ticket.subject || "-";
+
+
+        document.getElementById("customerTier").textContent =
+            `Customer Tier: ${ticket.customer_tier || "standard"}`;
+
+
+        document.getElementById("ticketBody").textContent =
+            ticket.body || "-";
+
+
+
+        // Classification
+        document.getElementById("category").textContent =
+            ticket.category || "-";
+
+
+        document.getElementById("priority").textContent =
+            ticket.priority || "-";
+
+
+        document.getElementById("sentiment").textContent =
+            ticket.sentiment || "-";
+
+
+        document.getElementById("source").textContent =
+            ticket.source || "-";
+
+
+        document.getElementById("escalated").textContent =
+            ticket.escalated ? "Yes" : "No";
+
+
+
+        // Confidence
+        document.getElementById("confidence").textContent =
+            ticket.confidence != null
+            ? `${(ticket.confidence * 100).toFixed(1)}%`
+            : "-";
+
+
+
+        // SLA
+        if (ticket.sla) {
+
+            document.getElementById("responseTime").textContent =
+                ticket.sla.response_time || "-";
+
+
+            document.getElementById("resolutionTime").textContent =
+                ticket.sla.resolution_time || "-";
+
+        }
+
+
+
+        // Priority badge
+        const priorityBadge =
+            document.getElementById("priorityBadge");
+
+
+        priorityBadge.textContent =
+            ticket.priority || "-";
+
+
+        if (ticket.priority === "P1") {
+
+            priorityBadge.className =
+                "px-4 py-2 rounded-full text-sm font-semibold bg-red-100 text-red-700";
+
+        }
+
+        else if (ticket.priority === "P2") {
+
+            priorityBadge.className =
+                "px-4 py-2 rounded-full text-sm font-semibold bg-orange-100 text-orange-700";
+
+        }
+
+        else {
+
+            priorityBadge.className =
+                "px-4 py-2 rounded-full text-sm font-semibold bg-slate-100 text-slate-700";
+
+        }
+
+
+
+        loading.classList.add("hidden");
+
+        content.classList.remove("hidden");
+
+        loadSimilarTickets();
+
+
+    }
+
+    catch (err) {
+
+        console.error(err);
+
+        loading.classList.add("hidden");
+
+        error.classList.remove("hidden");
+
+    }
+
+}
+
+    // Load tickets related to the current ticket
+    async function loadSimilarTickets() {
+
+        const status = document.getElementById("similarTicketsStatus");
+        const list = document.getElementById("similarTicketsList");
+
+        status.textContent = "Loading similar tickets...";
+        status.classList.remove("hidden");
+        list.classList.add("hidden");
+        list.replaceChildren();
+
+        try {
+
+            const response = await fetch(
+                `${API_URL}/tickets/${encodeURIComponent(ticketId)}/similar`
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to load similar tickets");
+            }
+
+            const similarTickets = await response.json();
+
+            if (!Array.isArray(similarTickets) || similarTickets.length === 0) {
+                status.textContent = "No similar tickets found.";
+                return;
+            }
+
+            similarTickets.slice(0, 5).forEach(ticket => {
+
+                const link = document.createElement("a");
+                link.href = `ticket-detail.html?id=${encodeURIComponent(ticket.id)}`;
+                link.className = "block py-4 first:pt-0 last:pb-0 hover:bg-slate-50";
+
+                const row = document.createElement("div");
+                row.className = "flex flex-wrap items-start justify-between gap-3";
+
+                const details = document.createElement("div");
+
+                const ticketNumber = document.createElement("p");
+                ticketNumber.className = "mono text-sm text-slate-500";
+                ticketNumber.textContent = `#${ticket.id}`;
+
+                const subject = document.createElement("p");
+                subject.className = "font-semibold mt-1";
+                subject.textContent = ticket.subject || "-";
+
+                const metadata = document.createElement("p");
+                metadata.className = "text-sm text-slate-500 mt-1";
+                metadata.textContent = `Category: ${ticket.category || "-"} · Priority: ${ticket.priority || "-"}`;
+
+                details.append(ticketNumber, subject, metadata);
+
+                const similarity = document.createElement("span");
+                similarity.className = "text-sm font-semibold text-slate-700";
+                similarity.textContent = `${(Number(ticket.similarity) * 100).toFixed(1)}% similar`;
+
+                row.append(details, similarity);
+                link.append(row);
+                list.append(link);
+
+            });
+
+            status.classList.add("hidden");
+            list.classList.remove("hidden");
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+            status.textContent = "Unable to load similar tickets. Please try again later.";
+
+        }
+
+    }
+
+
+    async function submitCorrection(event) {
+
+        event.preventDefault();
+
+        const category = document.getElementById("correctionCategory").value;
+        const priority = document.getElementById("correctionPriority").value;
+        const button = document.getElementById("correctionButton");
+        const status = document.getElementById("correctionStatus");
+        const correction = {};
+
+        if (category && category !== currentTicket.category) {
+            correction.category = category;
+        }
+
+        if (priority && priority !== currentTicket.priority) {
+            correction.priority = priority;
+        }
+
+        if (Object.keys(correction).length === 0) {
+            status.textContent = "Select a different category or priority to submit a correction.";
+            status.className = "mt-4 text-sm text-amber-700";
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Submitting...";
+        status.classList.add("hidden");
+
+        try {
+
+            const response = await fetch(
+                `${API_URL}/tickets/${encodeURIComponent(ticketId)}/correction`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(correction)
+                }
+            );
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                const detail = result.detail;
+                const message = Array.isArray(detail)
+                    ? detail.map(item => item.msg).join(" ")
+                    : detail || "Unable to save correction.";
+                throw new Error(message);
+            }
+
+            currentTicket.category = result.corrected.category;
+            currentTicket.priority = result.corrected.priority;
+
+            document.getElementById("category").textContent =
+                currentTicket.category || "-";
+            document.getElementById("priority").textContent =
+                currentTicket.priority || "-";
+            document.getElementById("currentCorrectionCategory").textContent =
+                currentTicket.category || "-";
+            document.getElementById("currentCorrectionPriority").textContent =
+                currentTicket.priority || "-";
+
+            const priorityBadge = document.getElementById("priorityBadge");
+            priorityBadge.textContent = currentTicket.priority || "-";
+            if (currentTicket.priority === "P1") {
+                priorityBadge.className =
+                    "px-4 py-2 rounded-full text-sm font-semibold bg-red-100 text-red-700";
+            }
+            else if (currentTicket.priority === "P2") {
+                priorityBadge.className =
+                    "px-4 py-2 rounded-full text-sm font-semibold bg-orange-100 text-orange-700";
+            }
+            else {
+                priorityBadge.className =
+                    "px-4 py-2 rounded-full text-sm font-semibold bg-slate-100 text-slate-700";
+            }
+
+            document.getElementById("correctionCategory").value = "";
+            document.getElementById("correctionPriority").value = "";
+            status.textContent = "Correction submitted successfully.";
+            status.className = "mt-4 text-sm text-green-700";
+
+        }
+
+        catch (error) {
+
+            status.textContent = error.message || "Unable to save correction.";
+            status.className = "mt-4 text-sm text-red-600";
+
+        }
+
+        finally {
+
+            button.disabled = false;
+            button.textContent = "Submit Correction";
+
+        }
+
+    }
+
+
+
+
+// Suggest AI reply
+async function suggestReply() {
+
+    const button = document.getElementById("replyButton");
+
+    const replyBox = document.getElementById("replyBox");
+
+
+    if (!currentTicket) {
+
+        return;
+
+    }
+
+
+    button.disabled = true;
+
+    button.textContent = "Generating...";
+
+
+    replyBox.textContent =
+        "Generating suggested reply...";
+
+
+    try {
+
+        const response = await fetch(
+            `${API_URL}/tickets/${currentTicket.id}/suggest-reply`,
+            {
+                method: "POST"
+            }
+        );
+
+
+        if (!response.ok) {
+
+            throw new Error("Failed to generate reply");
+
+        }
+
+
+        const data = await response.json();
+
+
+        replyBox.textContent =
+            data.reply ||
+            data.suggested_reply ||
+            "No reply generated.";
+
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        replyBox.textContent =
+            "Unable to generate reply. Please check the backend.";
+
+    }
+
+
+    finally {
+
+        button.disabled = false;
+
+        button.textContent = "Suggest Reply";
+
+    }
+
+}
+
+
+
+// Back button
+function goBack() {
+
+    window.location.href = "tickets.html";
+
+}
+
+
+
+// Load when page opens
+loadTicket();
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SupportAI - Knowledge Base</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            color-scheme: light;
+            --page: #f8f9ff;
+            --panel: #ffffff;
+            --panel-soft: #eff4ff;
+            --ink: #0b1c30;
+            --muted: #596579;
+            --line: #dce4f2;
+            --blue: #004ac6;
+            --blue-soft: #dbe7ff;
+            --cyan: #00788c;
+            --cyan-soft: #d7f6ff;
+            --green: #146c43;
+            --amber: #8a4b00;
+            --red: #ba1a1a;
+            --sidebar: #101f34;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--page); color: var(--ink); font-family: Inter, sans-serif; }
+        .symbols { font-family: "Material Symbols Outlined"; font-weight: normal; font-style: normal; font-size: 21px; line-height: 1; display: inline-block; white-space: nowrap; direction: ltr; font-feature-settings: "liga"; -webkit-font-feature-settings: "liga"; -webkit-font-smoothing: antialiased; }
+        .sidebar { position: fixed; inset: 0 auto 0 0; width: 244px; background: var(--sidebar); color: #eef3ff; padding: 22px 14px; display: flex; flex-direction: column; z-index: 2; }
+        .brand { display: flex; align-items: center; gap: 11px; padding: 6px 12px 26px; font-weight: 700; font-size: 17px; }
+        .brand-mark { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; background: #2563eb; color: white; }
+        .nav-label { padding: 10px 12px 8px; color: #9aa9c1; font-size: 10px; text-transform: uppercase; font-weight: 700; }
+        nav { display: grid; gap: 5px; }
+        nav a { min-height: 42px; padding: 0 12px; display: flex; align-items: center; gap: 12px; border-radius: 7px; text-decoration: none; color: #c7d2e4; font-size: 13px; font-weight: 500; transition: background .16s ease, color .16s ease; }
+        nav a:hover { background: #21334c; color: #fff; }
+        nav a[aria-current="page"] { color: white; background: #1d3f79; box-shadow: inset 3px 0 #62a0ff; }
+        .sidebar-foot { margin-top: auto; padding: 14px 12px 4px; color: #aab6c9; font-size: 11px; border-top: 1px solid #2b3b52; }
+        .workspace { margin-left: 244px; min-height: 100vh; }
+        header { height: 72px; padding: 0 34px; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,.86); border-bottom: 1px solid var(--line); }
+        .crumb { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; }
+        .crumb strong { color: var(--ink); font-size: 13px; font-weight: 600; }
+        .header-note { color: var(--muted); font: 11px "JetBrains Mono", monospace; }
+        main { max-width: 1440px; padding: 30px 34px 42px; margin: 0 auto; }
+        .page-intro { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 25px; }
+        .eyebrow { color: var(--blue); font: 600 10px "JetBrains Mono", monospace; text-transform: uppercase; }
+        h1 { margin: 7px 0 5px; font-size: 25px; line-height: 1.2; }
+        .page-intro p { margin: 0; color: var(--muted); font-size: 13px; }
+        .search-panel { padding: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; margin-bottom: 18px; }
+        .search-label { display: block; margin-bottom: 9px; color: #35435a; font-size: 11px; font-weight: 600; }
+        .search-control { height: 44px; display: flex; align-items: center; gap: 10px; padding: 0 12px; border: 1px solid #cbd6e7; border-radius: 6px; background: #fff; transition: border-color .15s ease, box-shadow .15s ease; }
+        .search-control:focus-within { border-color: #6c93dc; box-shadow: 0 0 0 3px rgba(0, 74, 198, .1); }
+        .search-control > .symbols { color: #66758c; font-size: 20px; }
+        .search-control input { width: 100%; min-width: 0; height: 100%; border: 0; outline: 0; color: var(--ink); background: transparent; font: 13px Inter, sans-serif; }
+        .search-control input::placeholder { color: #8995a8; }
+        .clear-search { display: none; flex: 0 0 30px; width: 30px; height: 30px; place-items: center; border: 0; border-radius: 5px; background: transparent; color: #65738a; cursor: pointer; }
+        .clear-search.visible { display: grid; }
+        .clear-search:hover { background: var(--panel-soft); color: var(--blue); }
+        .filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 15px; }
+        .filter-label { margin-right: 4px; color: var(--muted); font-size: 10px; font-weight: 600; }
+        .category-button { min-height: 30px; padding: 0 11px; border: 1px solid var(--line); border-radius: 5px; color: #4f5d72; background: #fff; font: 500 10px Inter, sans-serif; cursor: pointer; transition: background .15s ease, color .15s ease, border-color .15s ease; }
+        .category-button:hover { border-color: #9bb8ee; color: var(--blue); }
+        .category-button[aria-pressed="true"] { border-color: #b8ccf4; color: #003b9f; background: var(--blue-soft); font-weight: 600; }
+        .results-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 23px 1px 12px; }
+        .results-head h2 { margin: 0; font-size: 13px; font-weight: 600; }
+        #resultCount { color: var(--muted); font: 10px "JetBrains Mono", monospace; }
+        .article-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+        .article { min-width: 0; padding: 19px 20px 20px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); box-shadow: 0 2px 5px rgba(27, 47, 78, .025); animation: arrive .22s ease both; }
+        @keyframes arrive { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .article-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+        .category-tag { display: inline-flex; align-items: center; min-height: 23px; padding: 0 8px; border-radius: 4px; color: #174db0; background: var(--blue-soft); font: 600 9px "JetBrains Mono", monospace; text-transform: uppercase; }
+        .category-tag.billing { color: #805000; background: #ffedcc; }
+        .category-tag.technical { color: #006072; background: var(--cyan-soft); }
+        .category-tag.account { color: #184e3b; background: #d8f3e4; }
+        .category-tag.shipping { color: #68499b; background: #ece5fb; }
+        .category-tag.general { color: #526078; background: #edf1f7; }
+        .article-id { color: #8894a7; font: 9px "JetBrains Mono", monospace; }
+        .article h3 { margin: 0 0 9px; color: var(--ink); font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+        .article p { margin: 0; color: #4f5d72; font-size: 12px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .state { min-height: 180px; display: grid; place-items: center; padding: 28px 16px; border: 1px dashed #cbd6e7; border-radius: 7px; background: rgba(255,255,255,.62); text-align: center; }
+        .state[hidden] { display: none; }
+        .state-content { max-width: 360px; }
+        .state-icon { width: 42px; height: 42px; display: grid; place-items: center; margin: 0 auto 12px; border-radius: 8px; color: var(--blue); background: var(--blue-soft); }
+        .state-icon .symbols { font-size: 22px; }
+        .state h2 { margin: 0 0 6px; font-size: 13px; }
+        .state p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+        .state.error .state-icon { color: var(--red); background: #ffefed; }
+        .retry { margin-top: 14px; min-height: 34px; padding: 0 12px; border: 1px solid #b9cbed; border-radius: 5px; color: var(--blue); background: #fff; font: 600 10px Inter, sans-serif; cursor: pointer; }
+        .retry:hover { background: var(--panel-soft); }
+        @media (max-width: 1050px) { .article-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 760px) {
+            .sidebar { position: static; width: auto; padding: 10px 12px; }
+            .brand { padding: 3px 7px 11px; }
+            .nav-label, .sidebar-foot { display: none; }
+            nav { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; }
+            nav a { min-height: 48px; padding: 4px 3px; justify-content: center; flex-direction: column; gap: 3px; text-align: center; font-size: 9px; }
+            nav a .symbols { font-size: 17px; }
+            nav a span:last-child { max-width: 100%; line-height: 1.15; overflow-wrap: anywhere; }
+            .workspace { margin-left: 0; }
+            header { height: 56px; padding: 0 16px; }
+            main { padding: 22px 16px 32px; }
+            .page-intro { align-items: start; flex-direction: column; gap: 7px; margin-bottom: 19px; }
+            h1 { font-size: 22px; }
+            .search-panel { padding: 14px; }
+            .filter-row { gap: 6px; }
+            .filter-label { flex-basis: 100%; }
+            .category-button { min-height: 32px; }
+            .article-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 390px) { nav a .symbols { display: none; } nav a { min-height: 40px; font-size: 9px; } }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand"><span class="brand-mark"><span class="symbols">support_agent</span></span><span>SupportAI</span></div>
+        <div class="nav-label">Workspace</div>
+        <nav aria-label="Main navigation">
+            <a href="dashboard.html"><span class="symbols">dashboard</span><span>Dashboard</span></a>
+            <a href="tickets.html"><span class="symbols">confirmation_number</span><span>Tickets</span></a>
+            <a href="index.html"><span class="symbols">upload_file</span><span>Bulk Upload</span></a>
+            <a href="analytics.html"><span class="symbols">monitoring</span><span>Analytics</span></a>
+            <a href="knowledge-base.html" aria-current="page"><span class="symbols">menu_book</span><span>Knowledge Base</span></a>
+        </nav>
+        <div class="sidebar-foot">Support operations</div>
+    </aside>
+    <div class="workspace">
+        <header>
+            <div class="crumb"><span>Workspace</span><span>/</span><strong>Knowledge Base</strong></div>
+            <div class="header-note" id="connectionState">Knowledge articles</div>
+        </header>
+        <main>
+            <section class="page-intro">
+                <div><div class="eyebrow">Support operations / reference</div><h1>Knowledge Base</h1><p>Browse concise guidance for common customer support requests.</p></div>
+            </section>
+            <section class="search-panel" aria-label="Search and filter articles">
+                <label class="search-label" for="articleSearch">Search articles</label>
+                <div class="search-control">
+                    <span class="symbols" aria-hidden="true">search</span>
+                    <input id="articleSearch" type="search" placeholder="Search titles, content, or categories" autocomplete="off">
+                    <button class="clear-search" id="clearSearch" type="button" aria-label="Clear search" title="Clear search"><span class="symbols">close</span></button>
+                </div>
+                <div class="filter-row" id="categoryFilters" aria-label="Filter by category">
+                    <span class="filter-label">Category</span>
+                </div>
+            </section>
+            <div class="results-head"><h2>Articles</h2><span id="resultCount" aria-live="polite">Loading</span></div>
+            <div id="articleState" class="state" role="status" aria-live="polite">
+                <div class="state-content"><div class="state-icon"><span class="symbols">progress_activity</span></div><h2>Loading articles</h2><p>Fetching the latest guidance from the SupportAI knowledge base.</p></div>
+            </div>
+            <section id="articleGrid" class="article-grid" aria-label="Knowledge base articles" aria-busy="true"></section>
+        </main>
+    </div>
+    <script>
+        const API_URL = "http://127.0.0.1:8000/knowledge-base";
+        const categories = ["All", "Billing", "Technical", "Account", "Shipping", "General"];
+        const articleGrid = document.getElementById("articleGrid");
+        const articleState = document.getElementById("articleState");
+        const searchInput = document.getElementById("articleSearch");
+        const clearSearch = document.getElementById("clearSearch");
+        const categoryFilters = document.getElementById("categoryFilters");
+        const resultCount = document.getElementById("resultCount");
+        const connectionState = document.getElementById("connectionState");
+        let selectedCategory = "All";
+        let searchTimer;
+        let requestSequence = 0;
+
+        function showState(title, message, icon = "menu_book", isError = false, showRetry = false) {
+            articleState.hidden = false;
+            articleState.className = `state${isError ? " error" : ""}`;
+            articleState.replaceChildren();
+            const content = document.createElement("div");
+            content.className = "state-content";
+            const iconContainer = document.createElement("div");
+            iconContainer.className = "state-icon";
+            const iconText = document.createElement("span");
+            iconText.className = "symbols";
+            iconText.setAttribute("aria-hidden", "true");
+            iconText.textContent = icon;
+            iconContainer.append(iconText);
+            const heading = document.createElement("h2");
+            heading.textContent = title;
+            const detail = document.createElement("p");
+            detail.textContent = message;
+            content.append(iconContainer, heading, detail);
+            if (showRetry) {
+                const retry = document.createElement("button");
+                retry.className = "retry";
+                retry.type = "button";
+                retry.textContent = "Try again";
+                retry.addEventListener("click", loadArticles);
+                content.append(retry);
+            }
+            articleState.append(content);
+        }
+
+        function renderArticles(articles) {
+            articleGrid.replaceChildren();
+            articles.forEach(article => {
+                const card = document.createElement("article");
+                card.className = "article";
+                const top = document.createElement("div");
+                top.className = "article-top";
+                const category = document.createElement("span");
+                const categoryName = String(article.category || "General");
+                category.className = `category-tag ${categoryName.toLowerCase().replace(/[^a-z0-9-]/g, "-")}`;
+                category.textContent = categoryName;
+                top.append(category);
+                const title = document.createElement("h3");
+                title.textContent = article.title || "Untitled article";
+                const body = document.createElement("p");
+                body.textContent = article.body || "No article content available.";
+                card.append(top, title, body);
+                articleGrid.append(card);
+            });
+            articleState.hidden = articles.length > 0;
+            articleGrid.setAttribute("aria-busy", "false");
+            resultCount.textContent = `${articles.length} ${articles.length === 1 ? "article" : "articles"}`;
+            connectionState.textContent = "Knowledge articles";
+        }
+
+        function createCategoryFilters() {
+            categories.forEach(category => {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "category-button";
+                button.textContent = category;
+                button.dataset.category = category;
+                button.setAttribute("aria-pressed", String(category === selectedCategory));
+                button.addEventListener("click", () => {
+                    selectedCategory = category;
+                    categoryFilters.querySelectorAll(".category-button").forEach(filter => {
+                        filter.setAttribute("aria-pressed", String(filter.dataset.category === category));
+                    });
+                    loadArticles();
+                });
+                categoryFilters.append(button);
+            });
+        }
+
+        async function loadArticles() {
+            const currentRequest = ++requestSequence;
+            const query = searchInput.value.trim();
+            const params = new URLSearchParams();
+            let endpoint;
+            if (query) {
+                endpoint = `${API_URL}/search`;
+                params.set("q", query);
+                if (selectedCategory !== "All") params.set("category", selectedCategory);
+            } else {
+                endpoint = `${API_URL}/`;
+                if (selectedCategory !== "All") params.set("category", selectedCategory);
+            }
+            const url = params.size ? `${endpoint}?${params.toString()}` : endpoint;
+            articleGrid.setAttribute("aria-busy", "true");
+            resultCount.textContent = "Loading";
+            connectionState.textContent = "Loading articles...";
+            showState("Loading articles", "Fetching matching guidance from the SupportAI knowledge base.", "progress_activity");
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Knowledge Base request failed (${response.status}).`);
+                const data = await response.json();
+                if (currentRequest !== requestSequence) return;
+                if (!Array.isArray(data)) throw new Error("The Knowledge Base returned an unexpected response.");
+                if (data.length === 0) {
+                    articleGrid.replaceChildren();
+                    articleGrid.setAttribute("aria-busy", "false");
+                    resultCount.textContent = "0 articles";
+                    connectionState.textContent = "No matching articles";
+                    showState("No articles found", "Try another search term or select a different category.", "search_off");
+                    return;
+                }
+                renderArticles(data);
+            } catch (error) {
+                if (currentRequest !== requestSequence) return;
+                console.error("Unable to load Knowledge Base articles:", error);
+                articleGrid.replaceChildren();
+                articleGrid.setAttribute("aria-busy", "false");
+                resultCount.textContent = "Unavailable";
+                connectionState.textContent = "Service unavailable";
+                showState("Articles could not be loaded", "Check your connection to the SupportAI service, then try again.", "cloud_off", true, true);
+            }
+        }
+
+        searchInput.addEventListener("input", () => {
+            clearSearch.classList.toggle("visible", Boolean(searchInput.value));
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(loadArticles, 300);
+        });
+        searchInput.addEventListener("keydown", event => {
+            if (event.key === "Enter") {
+                clearTimeout(searchTimer);
+                loadArticles();
+            }
+        });
+        clearSearch.addEventListener("click", () => {
+            searchInput.value = "";
+            clearSearch.classList.remove("visible");
+            searchInput.focus();
+            loadArticles();
+        });
+
+        createCategoryFilters();
+        loadArticles();
+    </script>
+</body>
+</html>

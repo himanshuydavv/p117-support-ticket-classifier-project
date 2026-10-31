@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SupportAI - Analytics</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900">
+
+<!-- Sidebar -->
+<aside class="fixed left-0 top-0 h-screen w-64 bg-slate-900 text-white">
+
+    <div class="h-16 px-6 flex items-center">
+        <span class="text-xl font-bold">SupportAI</span>
+    </div>
+
+    <nav class="px-4 mt-4 space-y-2">
+
+        <a href="dashboard.html"
+           class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+            Dashboard
+        </a>
+
+        <a href="tickets.html"
+           class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+            Tickets
+        </a>
+
+        <a href="tickets.html"
+           class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+            Bulk Upload
+        </a>
+
+        <a href="analytics.html"
+           class="block px-4 py-3 rounded-lg bg-blue-600">
+            Analytics
+        </a>
+
+        <a href="index.html"
+           class="block px-4 py-3 rounded-lg hover:bg-slate-800">
+            Knowledge Base
+        </a>
+
+    </nav>
+
+</aside>
+
+
+<!-- Main -->
+<div class="ml-64">
+
+    <header class="h-16 bg-white border-b flex items-center justify-between px-8">
+
+        <div>
+            <h1 class="text-xl font-semibold">
+                Analytics
+            </h1>
+
+            <p class="text-sm text-slate-500">
+                Customer support ticket insights
+            </p>
+        </div>
+
+        <button
+            onclick="loadAnalytics()"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Refresh
+        </button>
+
+    </header>
+
+
+    <main class="p-8">
+
+        <!-- Loading -->
+        <div id="loading"
+             class="text-center py-10 text-slate-500">
+            Loading analytics...
+        </div>
+
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="hidden">
+
+            <!-- Total -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
+
+                <div class="bg-white border rounded-xl p-6">
+                    <p class="text-sm text-slate-500">
+                        Total Tickets
+                    </p>
+
+                    <p id="totalTickets"
+                       class="text-3xl font-bold mt-2">
+                        0
+                    </p>
+                </div>
+
+
+                <div class="bg-white border rounded-xl p-6">
+                    <p class="text-sm text-slate-500">
+                        Categories
+                    </p>
+
+                    <p id="categoryCount"
+                       class="text-3xl font-bold mt-2">
+                        0
+                    </p>
+                </div>
+
+
+                <div class="bg-white border rounded-xl p-6">
+                    <p class="text-sm text-slate-500">
+                        Priority Types
+                    </p>
+
+                    <p id="priorityCount"
+                       class="text-3xl font-bold mt-2">
+                        0
+                    </p>
+                </div>
+
+
+                <div class="bg-white border rounded-xl p-6">
+                    <p class="text-sm text-slate-500">
+                        Sentiment Types
+                    </p>
+
+                    <p id="sentimentCount"
+                       class="text-3xl font-bold mt-2">
+                        0
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- Analytics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- Categories -->
+                <div class="bg-white border rounded-xl p-6">
+
+                    <h2 class="font-semibold text-lg mb-5">
+                        Categories
+                    </h2>
+
+                    <div id="categories"
+                         class="space-y-3">
+                    </div>
+
+                </div>
+
+
+                <!-- Priorities -->
+                <div class="bg-white border rounded-xl p-6">
+
+                    <h2 class="font-semibold text-lg mb-5">
+                        Priorities
+                    </h2>
+
+                    <div id="priorities"
+                         class="space-y-3">
+                    </div>
+
+                </div>
+
+
+                <!-- Sentiments -->
+                <div class="bg-white border rounded-xl p-6">
+
+                    <h2 class="font-semibold text-lg mb-5">
+                        Sentiments
+                    </h2>
+
+                    <div id="sentiments"
+                         class="space-y-3">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Error -->
+        <div id="error"
+             class="hidden text-center py-10 text-red-500">
+
+            Unable to load analytics from backend.
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+
+const API_URL = "http://127.0.0.1:8000";
+
+
+async function loadAnalytics() {
+
+    const loading = document.getElementById("loading");
+    const dashboard = document.getElementById("dashboard");
+    const error = document.getElementById("error");
+
+    try {
+
+        loading.classList.remove("hidden");
+        dashboard.classList.add("hidden");
+        error.classList.add("hidden");
+
+
+        const response =
+            await fetch(`${API_URL}/tickets/analytics`);
+
+
+        if (!response.ok) {
+            throw new Error("Analytics request failed");
+        }
+
+
+        const data = await response.json();
+
+
+        // Total tickets
+        document.getElementById("totalTickets").textContent =
+            data.total_tickets;
+
+
+        // Number of types
+        document.getElementById("categoryCount").textContent =
+            data.categories.length;
+
+
+        document.getElementById("priorityCount").textContent =
+            data.priorities.length;
+
+
+        document.getElementById("sentimentCount").textContent =
+            data.sentiments.length;
+
+
+        // Categories
+        const categories =
+            document.getElementById("categories");
+
+        categories.innerHTML = "";
+
+
+        data.categories.forEach(item => {
+
+            categories.innerHTML += `
+
+                <div class="flex justify-between items-center
+                            bg-slate-50 rounded-lg p-3">
+
+                    <span class="font-medium">
+                        ${item.category}
+                    </span>
+
+                    <span class="px-3 py-1 rounded-full
+                                 bg-blue-100 text-blue-700 text-sm">
+                        ${item.count}
+                    </span>
+
+                </div>
+
+            `;
+
+        });
+
+
+        // Priorities
+        const priorities =
+            document.getElementById("priorities");
+
+        priorities.innerHTML = "";
+
+
+        data.priorities.forEach(item => {
+
+            let badge =
+                "bg-slate-100 text-slate-700";
+
+
+            if (item.priority === "P1") {
+                badge = "bg-red-100 text-red-700";
+            }
+
+            else if (item.priority === "P2") {
+                badge = "bg-orange-100 text-orange-700";
+            }
+
+
+            priorities.innerHTML += `
+
+                <div class="flex justify-between items-center
+                            bg-slate-50 rounded-lg p-3">
+
+                    <span class="font-medium">
+                        ${item.priority}
+                    </span>
+
+                    <span class="px-3 py-1 rounded-full
+                                 ${badge} text-sm">
+                        ${item.count}
+                    </span>
+
+                </div>
+
+            `;
+
+        });
+
+
+        // Sentiments
+        const sentiments =
+            document.getElementById("sentiments");
+
+        sentiments.innerHTML = "";
+
+
+        data.sentiments.forEach(item => {
+
+            let badge =
+                "bg-slate-100 text-slate-700";
+
+
+            if (item.sentiment === "negative") {
+                badge = "bg-red-100 text-red-700";
+            }
+
+            else if (item.sentiment === "positive") {
+                badge = "bg-green-100 text-green-700";
+            }
+
+
+            sentiments.innerHTML += `
+
+                <div class="flex justify-between items-center
+                            bg-slate-50 rounded-lg p-3">
+
+                    <span class="font-medium">
+                        ${item.sentiment}
+                    </span>
+
+                    <span class="px-3 py-1 rounded-full
+                                 ${badge} text-sm">
+                        ${item.count}
+                    </span>
+
+                </div>
+
+            `;
+
+        });
+
+
+        loading.classList.add("hidden");
+        dashboard.classList.remove("hidden");
+
+    }
+
+    catch (err) {
+
+        console.error(err);
+
+        loading.classList.add("hidden");
+        error.classList.remove("hidden");
+
+    }
+
+}
+
+
+loadAnalytics();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+fastapi==0.141.1
+uvicorn==0.54.0
+pydantic==2.13.5
+python-dotenv==1.2.3
+scikit-learn==1.9.1
+joblib
+numpy
+openai
+google-genai<3.0.0
+vaderSentiment
+python-multipart
+streamlit
+sentence-transformers
+faiss-cpu
